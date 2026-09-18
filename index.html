@@ -368,29 +368,45 @@
             </div>
 
             <div class="form-group">
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.25rem;">
-                <label class="form-label" for="citizenLocality">Ward / Locality & GPS</label>
-                <button type="button" class="btn btn-secondary btn-sm" id="btnDetectGps" onclick="detectLiveLocation()" style="padding: 0.2rem 0.55rem; font-size: 0.72rem; color: #047857; border-color: #a7f3d0; background: #ecfdf5;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+                <label class="form-label" for="citizenLocality">Area / Locality / Ward Name</label>
+                <button type="button" class="btn btn-secondary btn-sm" id="btnDetectGps" onclick="detectLiveLocation()" style="padding: 0.25rem 0.65rem; font-size: 0.74rem; color: #047857; border-color: #a7f3d0; background: #ecfdf5; font-weight: 700;">
                   📍 Detect My Live GPS
                 </button>
               </div>
-              <select id="citizenLocality" class="custom-select" style="width: 100%; margin-bottom: 0.4rem;" onchange="onComplaintInput()">
-                <option value="Sector 4">Sector 4 (Central) [28.6328, 77.2195]</option>
-                <option value="Civil Lines">Civil Lines (North) [28.6750, 77.2280]</option>
-                <option value="South Extension">South Extension (South) [28.5720, 77.2215]</option>
-                <option value="Hauz Khas">Hauz Khas (South-West) [28.5450, 77.2090]</option>
-                <option value="Karol Bagh">Karol Bagh (West) [28.6520, 77.1850]</option>
-                <option value="Tilak Marg">Tilak Marg (East) [28.6180, 77.2340]</option>
-                <option value="Lajpat Nagar">Lajpat Nagar (South-East) [28.5800, 77.2020]</option>
-              </select>
+              <input type="text" id="citizenLocality" class="form-input" list="localitySuggestions" placeholder="Type any Locality/City (e.g. Mathura, Sector 4, GLA Campus...)" required oninput="onComplaintInput()" value="Sector 4">
+              <datalist id="localitySuggestions">
+                <option value="Sector 4">Sector 4 (Central)</option>
+                <option value="Civil Lines">Civil Lines (North)</option>
+                <option value="South Extension">South Extension (South)</option>
+                <option value="Hauz Khas">Hauz Khas (South-West)</option>
+                <option value="Karol Bagh">Karol Bagh (West)</option>
+                <option value="Tilak Marg">Tilak Marg (East)</option>
+                <option value="Lajpat Nagar">Lajpat Nagar (South-East)</option>
+                <option value="Mathura">Mathura City</option>
+                <option value="GLA University">GLA University Campus</option>
+              </datalist>
 
-              <!-- Live GPS Status Badge -->
-              <div id="gpsStatusBadge" style="display: none; font-size: 0.75rem; background: #ecfdf5; border: 1px solid #a7f3d0; color: #065f46; padding: 0.35rem 0.65rem; border-radius: var(--radius-sm); margin-bottom: 0.4rem; align-items: center; justify-content: space-between;">
-                <span id="gpsCoordText">✅ Live GPS: Lat: 28.6328, Lon: 77.2195</span>
-                <span style="cursor: pointer; color: #dc2626; font-weight: 700;" onclick="clearLiveGps()" title="Reset to Ward Preset">✖</span>
+              <!-- Live GPS Coordinates & Reverse Geocoding Status -->
+              <div id="gpsStatusBadge" style="display: none; font-size: 0.78rem; background: #ecfdf5; border: 1.5px solid #a7f3d0; color: #065f46; padding: 0.5rem 0.85rem; border-radius: var(--radius-sm); margin-top: 0.45rem; align-items: center; justify-content: space-between;">
+                <div style="display: flex; flex-direction: column; gap: 0.15rem;">
+                  <span id="gpsCoordText" style="font-weight: 700;">📍 Live GPS: Lat: 27.6014, Lon: 77.5964</span>
+                  <span id="gpsAddressText" style="font-size: 0.72rem; color: #047857;">Auto-detected: Locality updated</span>
+                </div>
+                <button type="button" style="border: none; background: #fee2e2; color: #dc2626; border-radius: 50%; width: 22px; height: 22px; cursor: pointer; font-weight: 800; display: flex; align-items: center; justify-content: center;" onclick="clearLiveGps()" title="Clear Live GPS">✕</button>
               </div>
-              <input type="hidden" id="customLat" value="">
-              <input type="hidden" id="customLon" value="">
+
+              <!-- Lat/Lon Manual/Auto Inputs -->
+              <div class="form-row" style="margin-top: 0.45rem;">
+                <div>
+                  <label style="font-size: 0.72rem; color: #64748b; font-weight: 600;">Latitude</label>
+                  <input type="number" step="any" id="customLat" class="form-input" style="padding: 0.35rem 0.6rem; font-size: 0.8rem;" placeholder="28.6328" value="28.6328">
+                </div>
+                <div>
+                  <label style="font-size: 0.72rem; color: #64748b; font-weight: 600;">Longitude</label>
+                  <input type="number" step="any" id="customLon" class="form-input" style="padding: 0.35rem 0.6rem; font-size: 0.8rem;" placeholder="77.2195" value="77.2195">
+                </div>
+              </div>
             </div>
 
             <div class="form-group">

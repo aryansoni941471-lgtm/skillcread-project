@@ -294,6 +294,7 @@ async function fetchDashboardData(isBackground = false) {
     renderClustersList(State.clusters);
     renderCitizenFeed(State.complaints);
     updateMapMarkers(State.complaints, State.spikes);
+    updateLocalityFilterDropdown(State.complaints);
 
     // Update Charts
     if (trendsRes.success && State.charts.trends) {
@@ -553,22 +554,23 @@ function onComplaintInput() {
 }
 
 // ====================================================================
-// Browser Live Geolocation Detection
+// Browser Live Geolocation & Reverse Geocoding Detection
 // ====================================================================
 function detectLiveLocation() {
   const btn = document.getElementById('btnDetectGps');
   const badge = document.getElementById('gpsStatusBadge');
   const text = document.getElementById('gpsCoordText');
+  const addressText = document.getElementById('gpsAddressText');
 
   if (!navigator.geolocation) {
     showToast('Geolocation is not supported by your browser', 'warning');
     return;
   }
 
-  if (btn) btn.textContent = '⏳ Locating...';
+  if (btn) btn.textContent = '⏳ Locating GPS...';
 
   navigator.geolocation.getCurrentPosition(
-    (position) => {
+    async (position) => {
       const lat = position.coords.latitude;
       const lon = position.coords.longitude;
       const acc = Math.round(position.coords.accuracy || 10);
@@ -578,22 +580,48 @@ function detectLiveLocation() {
 
       if (badge && text) {
         badge.style.display = 'flex';
-        text.textContent = `📍 Live GPS Locked: ${lat.toFixed(4)}, ${lon.toFixed(4)} (±${acc}m accuracy)`;
+        text.textContent = `📍 Live GPS Locked: Lat: ${lat.toFixed(4)}, Lon: ${lon.toFixed(4)} (±${acc}m accuracy)`;
       }
-      if (btn) btn.textContent = '✅ GPS Active';
+      if (btn) btn.textContent = '✅ GPS Locked';
 
-      showToast(`📍 Live Location Detected: ${lat.toFixed(4)}, ${lon.toFixed(4)}`, 'success');
+      showToast(`📍 GPS Coordinates Locked: ${lat.toFixed(4)}, ${lon.toFixed(4)}`, 'success');
+
+      // Reverse Geocoding via OpenStreetMap Nominatim API
+      try {
+        if (addressText) addressText.textContent = '🔍 Resolving local area name...';
+        const geoRes = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`).then(r => r.json());
+        
+        if (geoRes && geoRes.address) {
+          const addr = geoRes.address;
+          const detectedArea = addr.suburb || addr.neighbourhood || addr.residential || addr.city_district || addr.city || addr.town || addr.village || addr.county || 'Local Ward';
+          const cityOrDistrict = addr.city || addr.town || addr.state_district || '';
+          
+          let displayLocality = detectedArea;
+          if (cityOrDistrict && cityOrDistrict !== detectedArea) {
+            displayLocality += ` (${cityOrDistrict})`;
+          }
+
+          document.getElementById('citizenLocality').value = displayLocality;
+          if (addressText) {
+            addressText.textContent = `📍 Auto-detected: ${geoRes.display_name.split(',').slice(0, 3).join(',')}`;
+          }
+          showToast(`📍 Detected Area: ${displayLocality}`, 'info');
+        }
+      } catch (err) {
+        console.warn('Reverse geocoding offline, using coordinates:', err);
+        if (addressText) addressText.textContent = `📍 Live Coordinates Area (${lat.toFixed(3)}, ${lon.toFixed(3)})`;
+      }
       
-      // Also fly map to citizen location if map exists
+      // Pan/Zoom map to exact citizen GPS location
       if (State.mapInstance) {
-        State.mapInstance.flyTo([lat, lon], 14, { animate: true });
+        State.mapInstance.flyTo([lat, lon], 14, { animate: true, duration: 1.5 });
       }
     },
     (error) => {
       if (btn) btn.textContent = '📍 Detect My Live GPS';
       let msg = 'Unable to retrieve location';
-      if (error.code === 1) msg = 'Location access permission denied. Using Ward presets.';
-      else if (error.code === 2) msg = 'Location unavailable. Using Ward presets.';
+      if (error.code === 1) msg = 'Location access permission denied. You can manually enter area name & coordinates.';
+      else if (error.code === 2) msg = 'Location unavailable on device.';
       else if (error.code === 3) msg = 'Location request timed out.';
       showToast(`⚠️ ${msg}`, 'warning');
     },
@@ -602,31 +630,32 @@ function detectLiveLocation() {
 }
 
 function clearLiveGps() {
-  document.getElementById('customLat').value = '';
-  document.getElementById('customLon').value = '';
+  document.getElementById('customLat').value = '28.6328';
+  document.getElementById('customLon').value = '77.2195';
+  document.getElementById('citizenLocality').value = 'Sector 4';
   const badge = document.getElementById('gpsStatusBadge');
   const btn = document.getElementById('btnDetectGps');
   if (badge) badge.style.display = 'none';
   if (btn) btn.textContent = '📍 Detect My Live GPS';
-  showToast('Reverted to Ward preset coordinates', 'info');
+  showToast('Reset location to Sector 4 preset', 'info');
 }
 
 async function submitCitizenComplaint(e) {
   e.preventDefault();
   const title = document.getElementById('citizenTitle').value.trim();
   const desc = document.getElementById('citizenDesc').value.trim();
-  const locality = document.getElementById('citizenLocality').value;
+  const locality = document.getElementById('citizenLocality').value.trim() || 'Central Zone';
   const citizenName = document.getElementById('citizenName').value.trim() || 'Anonymous Citizen';
   
-  const customLat = document.getElementById('customLat').value;
-  const customLon = document.getElementById('customLon').value;
+  const customLatVal = document.getElementById('customLat').value;
+  const customLonVal = document.getElementById('customLon').value;
 
   if (!title || !desc) {
     showToast('Please enter both title and description', 'warning');
     return;
   }
 
-  // Predefined Ward Coordinates (Default Metropolitan Wards)
+  // Predefined Ward Coordinates
   const locCoords = {
     'Sector 4': [28.6328, 77.2195],
     'Civil Lines': [28.6750, 77.2280],
@@ -638,12 +667,10 @@ async function submitCitizenComplaint(e) {
   };
 
   let finalLat, finalLon;
-  if (customLat && customLon) {
-    // User explicitly locked live GPS
-    finalLat = parseFloat(customLat);
-    finalLon = parseFloat(customLon);
+  if (customLatVal && customLonVal && !isNaN(parseFloat(customLatVal)) && !isNaN(parseFloat(customLonVal))) {
+    finalLat = parseFloat(customLatVal);
+    finalLon = parseFloat(customLonVal);
   } else {
-    // Use Ward Preset with slight jitter for distinct pins
     const baseCoords = locCoords[locality] || [28.6250, 77.2150];
     finalLat = baseCoords[0] + (Math.random() - 0.5) * 0.005;
     finalLon = baseCoords[1] + (Math.random() - 0.5) * 0.005;
@@ -664,7 +691,7 @@ async function submitCitizenComplaint(e) {
     }).then(r => r.json());
 
     if (res.success) {
-      showToast('🎉 Complaint submitted with GPS coordinates & AI auto-categorized!', 'success');
+      showToast(`🎉 Complaint registered in ${locality} with GPS [${finalLat.toFixed(4)}, ${finalLon.toFixed(4)}]!`, 'success');
       document.getElementById('complaintForm').reset();
       clearLiveGps();
       document.getElementById('duplicateWarningAlert').style.display = 'none';
@@ -802,6 +829,19 @@ function bindEvents() {
       fetchDashboardData(true);
     });
   }
+}
+
+function updateLocalityFilterDropdown(complaints) {
+  const filterLoc = document.getElementById('filterLocality');
+  if (!filterLoc) return;
+
+  const currentVal = State.filters.locality;
+  const uniqueLocalities = Array.from(new Set(complaints.map(c => c.locality).filter(Boolean))).sort();
+
+  filterLoc.innerHTML = `
+    <option value="All" ${currentVal === 'All' ? 'selected' : ''}>All Wards / Localities</option>
+    ${uniqueLocalities.map(loc => `<option value="${loc}" ${currentVal === loc ? 'selected' : ''}>${loc}</option>`).join('')}
+  `;
 }
 
 function showToast(message, type = 'info') {
