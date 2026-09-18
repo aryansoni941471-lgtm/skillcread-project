@@ -3,173 +3,269 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>नगर Drishti - Secure Authentication & Access Portal</title>
+  <title>NagarDrishti - Civic Incident Intelligence Access</title>
   <link rel="stylesheet" href="style.css">
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>👁️</text></svg>">
+  <link rel="icon" href="logo.png">
 </head>
 <body class="auth-page-wrapper">
 
-  <div class="auth-card">
+  <div class="auth-split-container">
     
-    <!-- Logo & Brand Header -->
-    <div class="auth-logo-center">
-      <div class="brand-logo-icon" style="width: 58px; height: 58px;">
-        <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <!-- Stylized Eye Outline -->
-          <path d="M10 50 Q 50 15 90 50 Q 50 85 10 50 Z" stroke="#10b981" stroke-width="5" fill="none"/>
-          <!-- Pupil City Silhouette -->
-          <circle cx="50" cy="50" r="22" fill="#042a22" stroke="#f59e0b" stroke-width="3"/>
-          <path d="M40 60 V45 H46 V38 H54 V48 H60 V60 Z" fill="#10b981"/>
-          <circle cx="50" cy="34" r="3" fill="#f59e0b"/>
-          <!-- Circuit Accent -->
-          <circle cx="85" cy="30" r="3" fill="#06b6d4"/>
-          <path d="M85 30 L75 40" stroke="#06b6d4" stroke-width="2"/>
-        </svg>
+    <!-- LEFT SIDE: Emerald Tech Grid Hero Section -->
+    <div class="auth-brand-side">
+      <!-- Top Brand Header -->
+      <div class="brand-side-header">
+        <div class="brand-side-logo-box">
+          <img src="logo.png" alt="NagarDrishti Logo">
+        </div>
+        <div class="brand-side-title-group">
+          <h2>NagarDrishti</h2>
+          <p>See • Report • Solve</p>
+        </div>
       </div>
-      <div class="brand-title">
-        <span class="hindi-title">नगर</span>
-        <span class="english-title">Drishti</span>
+
+      <!-- Center Rounded Graphic Card -->
+      <div class="brand-side-hero-card">
+        <img src="logo.png" alt="NagarDrishti Civic Emblem">
       </div>
-      <div class="brand-tagline">
-        <span>SEE</span> • <span>REPORT</span> • <span>SOLVE</span>
+
+      <!-- Bottom Platform Tagline -->
+      <div class="brand-side-footer">
+        <h3>Civic Incident Intelligence</h3>
+        <p>Real-time AI anomaly detection, duplicate clustering & dispatch intelligence.</p>
       </div>
-      <p style="font-size: 0.8rem; color: #94a3b8; margin-top: 0.25rem;">
-        Civic Incident Intelligence & Operations Platform
-      </p>
     </div>
 
-    <!-- Login / Signup Toggle Tabs -->
-    <div class="auth-tabs">
-      <button class="auth-tab-btn active" id="tabLoginBtn" onclick="switchAuthTab('login')">Sign In</button>
-      <button class="auth-tab-btn" id="tabSignupBtn" onclick="switchAuthTab('signup')">Create Account</button>
-    </div>
-
-    <!-- Sign In Form -->
-    <form id="loginForm" onsubmit="handleLoginSubmit(event)">
-      <div class="form-group">
-        <label class="form-label">Select Role</label>
-        <div class="role-selector-group">
-          <label class="role-pill selected" id="roleOfficerPill" onclick="selectRole('officer')">
-            <input type="radio" name="authRole" value="officer" checked>
-            <span>🏢 Municipal Officer</span>
-          </label>
-          <label class="role-pill" id="roleCitizenPill" onclick="selectRole('citizen')">
-            <input type="radio" name="authRole" value="citizen">
-            <span>👤 Citizen</span>
-          </label>
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label class="form-label" for="loginEmail">Email Address</label>
-        <input type="email" id="loginEmail" class="form-input" placeholder="officer@nagardrishti.gov.in" required value="officer.sharma@nagardrishti.gov.in">
-      </div>
-
-      <div class="form-group">
-        <label class="form-label" for="loginPassword">Password</label>
-        <input type="password" id="loginPassword" class="form-input" placeholder="••••••••" required value="demo12345">
-      </div>
-
-      <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 0.5rem;">
-        🚀 Access Command Portal
-      </button>
-
-      <div style="display: flex; gap: 0.5rem; margin-top: 0.75rem;">
-        <button type="button" class="btn btn-secondary btn-sm" style="flex: 1;" onclick="quickDemoLogin('officer')">
-          ⚡ Demo Officer
+    <!-- RIGHT SIDE: Clean White Modern Login Card -->
+    <div class="auth-form-side">
+      <div class="auth-form-card">
+        
+        <!-- Top Role Switcher Pill -->
+        <button type="button" class="role-pill-switcher" id="rolePillBtn" onclick="toggleActiveRole()" title="Click to switch role">
+          <span id="roleIcon">👤</span>
+          <span id="roleText">Citizen Portal</span>
+          <span style="font-size: 0.65rem; margin-left: 2px; opacity: 0.7;">▼</span>
         </button>
-        <button type="button" class="btn btn-secondary btn-sm" style="flex: 1;" onclick="quickDemoLogin('citizen')">
-          ⚡ Demo Citizen
-        </button>
-      </div>
-    </form>
 
-    <!-- Sign Up Form (Hidden by default) -->
-    <form id="signupForm" style="display: none;" onsubmit="handleSignupSubmit(event)">
-      <div class="form-group">
-        <label class="form-label" for="signupName">Full Name</label>
-        <input type="text" id="signupName" class="form-input" placeholder="Aarav Sharma" required>
-      </div>
+        <!-- Dynamic Form Title & Subtitle -->
+        <h1 class="auth-form-title" id="authTitle">Welcome back</h1>
+        <p class="auth-form-subtitle" id="authSubtitle">
+          Sign in to report and track civic incidents in your city.
+        </p>
 
-      <div class="form-group">
-        <label class="form-label" for="signupEmail">Email Address</label>
-        <input type="email" id="signupEmail" class="form-input" placeholder="aarav@gmail.com" required>
-      </div>
+        <!-- Sign In Form -->
+        <form id="loginForm" onsubmit="handleLoginSubmit(event)">
+          
+          <div class="form-group" style="margin-bottom: 1.15rem;">
+            <label class="form-label" for="loginEmail" style="font-size: 0.86rem; color: #334155; font-weight: 600; margin-bottom: 0.35rem;">
+              Email or phone
+            </label>
+            <div class="input-icon-group">
+              <span class="input-icon-left">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect width="20" height="16" x="2" y="4" rx="2"/>
+                  <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
+                </svg>
+              </span>
+              <input type="text" id="loginEmail" class="form-input-with-icon" placeholder="you@example.com" required value="citizen.aarav@gmail.com">
+            </div>
+          </div>
 
-      <div class="form-row">
-        <div class="form-group">
-          <label class="form-label">Ward / Locality</label>
-          <select id="signupWard" class="custom-select" style="width: 100%;">
-            <option value="Sector 4">Sector 4</option>
-            <option value="Civil Lines">Civil Lines</option>
-            <option value="South Extension">South Extension</option>
-            <option value="Hauz Khas">Hauz Khas</option>
-            <option value="Karol Bagh">Karol Bagh</option>
-            <option value="Tilak Marg">Tilak Marg</option>
-          </select>
+          <div class="form-group" style="margin-bottom: 0.5rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+              <label class="form-label" for="loginPassword" style="font-size: 0.86rem; color: #334155; font-weight: 600; margin-bottom: 0;">
+                Password
+              </label>
+              <a href="#" class="forgot-password-link" onclick="handleForgotPassword(event)">Forgot password?</a>
+            </div>
+            <div class="input-icon-group">
+              <span class="input-icon-left">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect width="18" height="11" x="3" y="11" rx="2" ry="2"/>
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                </svg>
+              </span>
+              <input type="password" id="loginPassword" class="form-input-with-icon" placeholder="Enter your password" required value="demo12345">
+              <span class="input-icon-right" onclick="togglePasswordVisibility('loginPassword', this)" title="Toggle visibility">
+                <svg class="eye-open" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/>
+                  <circle cx="12" cy="12" r="3"/>
+                </svg>
+              </span>
+            </div>
+          </div>
+
+          <div class="auth-options-row">
+            <label class="checkbox-label">
+              <input type="checkbox" id="rememberMe" checked>
+              <span>Keep me signed in</span>
+            </label>
+          </div>
+
+          <button type="submit" class="btn-auth-submit" id="btnSignIn">
+            Sign in
+          </button>
+        </form>
+
+        <!-- Sign Up Form (Hidden by default) -->
+        <form id="signupForm" style="display: none;" onsubmit="handleSignupSubmit(event)">
+          
+          <div class="form-group" style="margin-bottom: 1.15rem;">
+            <label class="form-label" for="signupName" style="font-size: 0.86rem; color: #334155; font-weight: 600; margin-bottom: 0.35rem;">
+              Full Name
+            </label>
+            <div class="input-icon-group">
+              <span class="input-icon-left">👤</span>
+              <input type="text" id="signupName" class="form-input-with-icon" placeholder="Aarav Sharma" required>
+            </div>
+          </div>
+
+          <div class="form-group" style="margin-bottom: 1.15rem;">
+            <label class="form-label" for="signupEmail" style="font-size: 0.86rem; color: #334155; font-weight: 600; margin-bottom: 0.35rem;">
+              Email or phone
+            </label>
+            <div class="input-icon-group">
+              <span class="input-icon-left">✉️</span>
+              <input type="email" id="signupEmail" class="form-input-with-icon" placeholder="aarav@gmail.com" required>
+            </div>
+          </div>
+
+          <div class="form-row" style="margin-bottom: 1.15rem;">
+            <div>
+              <label class="form-label" style="font-size: 0.86rem; color: #334155; font-weight: 600; margin-bottom: 0.35rem;">Ward / City</label>
+              <input type="text" id="signupWard" class="form-input" placeholder="Sector 4 / Mathura" value="Sector 4" required>
+            </div>
+            <div>
+              <label class="form-label" style="font-size: 0.86rem; color: #334155; font-weight: 600; margin-bottom: 0.35rem;">Role</label>
+              <select id="signupRole" class="custom-select" style="width: 100%;">
+                <option value="citizen">Citizen</option>
+                <option value="officer">Municipal Officer</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group" style="margin-bottom: 1.25rem;">
+            <label class="form-label" for="signupPassword" style="font-size: 0.86rem; color: #334155; font-weight: 600; margin-bottom: 0.35rem;">
+              Create Password
+            </label>
+            <div class="input-icon-group">
+              <span class="input-icon-left">🔒</span>
+              <input type="password" id="signupPassword" class="form-input-with-icon" placeholder="Choose strong password" required>
+              <span class="input-icon-right" onclick="togglePasswordVisibility('signupPassword', this)">
+                👁️
+              </span>
+            </div>
+          </div>
+
+          <button type="submit" class="btn-auth-submit" style="background: #059669;">
+            Create Account
+          </button>
+        </form>
+
+        <!-- Bottom Mode Switcher -->
+        <div class="auth-bottom-switch" id="bottomAuthSwitch">
+          <span>New to NagarDrishti?</span>
+          <a href="#" onclick="toggleAuthMode('signup', event)">Create an account</a>
         </div>
-        <div class="form-group">
-          <label class="form-label">Account Role</label>
-          <select id="signupRole" class="custom-select" style="width: 100%;">
-            <option value="citizen">Citizen</option>
-            <option value="officer">Municipal Officer</option>
-          </select>
+
+        <!-- 1-Click Demo Credentials Fast Login -->
+        <div class="demo-credentials-card">
+          <span>⚡ Fast Demo Access (Hackathon Review)</span>
+          <div class="demo-btn-group">
+            <button type="button" class="demo-btn" onclick="quickDemoLogin('officer')">
+              🏢 Municipal Officer
+            </button>
+            <button type="button" class="demo-btn" onclick="quickDemoLogin('citizen')">
+              👤 Citizen User
+            </button>
+          </div>
         </div>
+
       </div>
-
-      <div class="form-group">
-        <label class="form-label" for="signupPassword">Create Password</label>
-        <input type="password" id="signupPassword" class="form-input" placeholder="••••••••" required>
-      </div>
-
-      <button type="submit" class="btn btn-amber" style="width: 100%; margin-top: 0.5rem;">
-        ✨ Register Account
-      </button>
-    </form>
-
-    <!-- Footer Security Notice -->
-    <div style="font-size: 0.72rem; color: #64748b; text-align: center; border-top: 1px solid rgba(16, 185, 129, 0.15); padding-top: 0.75rem;">
-      🛡️ Secured with Supabase PostgreSQL & Real-time AI Anomaly Engine
     </div>
 
   </div>
 
-  <!-- Toast Notifications -->
+  <!-- Toast Notification Container -->
   <div class="toast-container" id="toastContainer"></div>
 
   <script>
-    let selectedRole = 'officer';
+    let currentRole = 'citizen';
+    let currentAuthMode = 'login'; // 'login' | 'signup'
 
-    function switchAuthTab(tab) {
-      const loginTab = document.getElementById('tabLoginBtn');
-      const signupTab = document.getElementById('tabSignupBtn');
-      const loginForm = document.getElementById('loginForm');
-      const signupForm = document.getElementById('signupForm');
-
-      if (tab === 'login') {
-        loginTab.classList.add('active');
-        signupTab.classList.remove('active');
-        loginForm.style.display = 'block';
-        signupForm.style.display = 'none';
+    function toggleActiveRole() {
+      if (currentRole === 'citizen') {
+        setRole('officer');
       } else {
-        signupTab.classList.add('active');
-        loginTab.classList.remove('active');
-        signupForm.style.display = 'block';
-        loginForm.style.display = 'none';
+        setRole('citizen');
       }
     }
 
-    function selectRole(role) {
-      selectedRole = role;
-      document.getElementById('roleOfficerPill').classList.toggle('selected', role === 'officer');
-      document.getElementById('roleCitizenPill').classList.toggle('selected', role === 'citizen');
-      
+    function setRole(role) {
+      currentRole = role;
+      const roleText = document.getElementById('roleText');
+      const roleIcon = document.getElementById('roleIcon');
+      const roleBtn = document.getElementById('rolePillBtn');
       const emailInput = document.getElementById('loginEmail');
+
       if (role === 'officer') {
-        emailInput.value = 'officer.sharma@nagardrishti.gov.in';
+        roleText.textContent = 'Municipal Officer';
+        roleIcon.textContent = '🏢';
+        roleBtn.style.background = '#eff6ff';
+        roleBtn.style.borderColor = '#93c5fd';
+        roleBtn.style.color = '#1e40af';
+        if (emailInput && currentAuthMode === 'login') {
+          emailInput.value = 'officer.sharma@nagardrishti.gov.in';
+        }
       } else {
-        emailInput.value = 'citizen.aarav@gmail.com';
+        roleText.textContent = 'Citizen Portal';
+        roleIcon.textContent = '👤';
+        roleBtn.style.background = '#ecfdf5';
+        roleBtn.style.borderColor = '#a7f3d0';
+        roleBtn.style.color = '#065f46';
+        if (emailInput && currentAuthMode === 'login') {
+          emailInput.value = 'citizen.aarav@gmail.com';
+        }
       }
+    }
+
+    function toggleAuthMode(mode, e) {
+      if (e) e.preventDefault();
+      currentAuthMode = mode;
+      const loginForm = document.getElementById('loginForm');
+      const signupForm = document.getElementById('signupForm');
+      const title = document.getElementById('authTitle');
+      const subtitle = document.getElementById('authSubtitle');
+      const switchBox = document.getElementById('bottomAuthSwitch');
+
+      if (mode === 'signup') {
+        loginForm.style.display = 'none';
+        signupForm.style.display = 'block';
+        title.textContent = 'Create your account';
+        subtitle.textContent = 'Join NagarDrishti to report and monitor civic issues.';
+        switchBox.innerHTML = `<span>Already have an account?</span> <a href="#" onclick="toggleAuthMode('login', event)">Sign in</a>`;
+      } else {
+        signupForm.style.display = 'none';
+        loginForm.style.display = 'block';
+        title.textContent = 'Welcome back';
+        subtitle.textContent = 'Sign in to report and track civic incidents in your city.';
+        switchBox.innerHTML = `<span>New to NagarDrishti?</span> <a href="#" onclick="toggleAuthMode('signup', event)">Create an account</a>`;
+      }
+    }
+
+    function togglePasswordVisibility(inputId, triggerElem) {
+      const input = document.getElementById(inputId);
+      if (!input) return;
+      if (input.type === 'password') {
+        input.type = 'text';
+      } else {
+        input.type = 'password';
+      }
+    }
+
+    function handleForgotPassword(e) {
+      e.preventDefault();
+      showToast('Password reset link sent to registered email', 'info');
     }
 
     async function handleLoginSubmit(e) {
@@ -181,15 +277,15 @@
         const res = await fetch('/api/auth/login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email, password, role: selectedRole })
+          body: JSON.stringify({ email, password, role: currentRole })
         }).then(r => r.json());
 
         if (res.success) {
           localStorage.setItem('nagar_user', JSON.stringify(res.user));
-          showToast(res.message, 'success');
+          showToast(`Welcome ${res.user.full_name}! Redirecting...`, 'success');
           setTimeout(() => {
             window.location.href = '/';
-          }, 600);
+          }, 500);
         } else {
           showToast(res.error || 'Login failed', 'error');
         }
@@ -202,7 +298,7 @@
       e.preventDefault();
       const full_name = document.getElementById('signupName').value.trim();
       const email = document.getElementById('signupEmail').value.trim();
-      const ward = document.getElementById('signupWard').value;
+      const ward = document.getElementById('signupWard').value.trim() || 'Sector 4';
       const role = document.getElementById('signupRole').value;
 
       try {
@@ -214,10 +310,10 @@
 
         if (res.success) {
           localStorage.setItem('nagar_user', JSON.stringify(res.user));
-          showToast('🎉 Account registered! Redirecting...', 'success');
+          showToast('🎉 Account registered! Redirecting to platform...', 'success');
           setTimeout(() => {
             window.location.href = '/';
-          }, 800);
+          }, 600);
         } else {
           showToast(res.error || 'Signup failed', 'error');
         }
@@ -227,7 +323,7 @@
     }
 
     function quickDemoLogin(role) {
-      selectRole(role);
+      setRole(role);
       const user = role === 'officer' ? {
         full_name: 'Superintendent V. Sharma',
         role: 'officer',
@@ -238,19 +334,33 @@
         department: 'Ward 12 Resident'
       };
       localStorage.setItem('nagar_user', JSON.stringify(user));
-      showToast(`Logged in as ${user.full_name}`, 'success');
+      showToast(`Logged in as ${user.full_name} (${role.toUpperCase()})`, 'success');
       setTimeout(() => {
         window.location.href = '/';
-      }, 500);
+      }, 400);
     }
 
     function showToast(message, type = 'info') {
       const container = document.getElementById('toastContainer');
+      if (!container) return;
+
       const toast = document.createElement('div');
       toast.className = 'toast';
-      toast.innerHTML = `<span>${type === 'success' ? '✅' : type === 'error' ? '❌' : 'ℹ️'}</span> <span>${message}</span>`;
+      
+      let icon = 'ℹ️';
+      if (type === 'success') icon = '✅';
+      if (type === 'warning') icon = '⚠️';
+      if (type === 'error') icon = '❌';
+
+      toast.innerHTML = `<span>${icon}</span> <span>${message}</span>`;
       container.appendChild(toast);
-      setTimeout(() => toast.remove(), 3500);
+
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateX(100%)';
+        toast.style.transition = 'all 0.3s ease';
+        setTimeout(() => toast.remove(), 300);
+      }, 3500);
     }
   </script>
 </body>

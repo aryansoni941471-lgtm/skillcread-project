@@ -774,16 +774,19 @@ def main_html():
     return send_from_directory('.', 'index.html')
 
 @app.route('/auth')
+@app.route('/auth.html')
 def auth_page():
     return send_from_directory('.', 'auth.html')
 
-@app.route('/style.css')
-def css_file():
-    return send_from_directory('.', 'style.css')
+@app.route('/logo.png')
+def logo_image():
+    return send_from_directory('.', 'logo.png')
 
-@app.route('/app.js')
-def js_file():
-    return send_from_directory('.', 'app.js')
+@app.route('/<path:path>')
+def catch_all_static(path):
+    if os.path.exists(path):
+        return send_from_directory('.', path)
+    return send_from_directory('.', 'index.html')
 
 @app.route('/api/health')
 def health():
