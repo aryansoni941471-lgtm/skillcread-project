@@ -15,7 +15,8 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-app = Flask(__name__, static_folder='.', template_folder='.')
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+app = Flask(__name__, static_folder=BASE_DIR, template_folder=BASE_DIR)
 
 SUPABASE_URL = os.getenv("SUPABASE_URL", "").strip()
 SUPABASE_KEY = os.getenv("SUPABASE_KEY", "").strip()
@@ -767,26 +768,29 @@ def generate_operations_briefing():
 # ====================================================================
 @app.route('/')
 def index():
-    return send_from_directory('.', 'index.html')
+    return send_from_directory(BASE_DIR, 'index.html')
 
 @app.route('/main.html')
 def main_html():
-    return send_from_directory('.', 'index.html')
+    return send_from_directory(BASE_DIR, 'index.html')
 
 @app.route('/auth')
 @app.route('/auth.html')
 def auth_page():
-    return send_from_directory('.', 'auth.html')
+    return send_from_directory(BASE_DIR, 'auth.html')
 
 @app.route('/logo.png')
+@app.route('/logo.jpg')
 def logo_image():
-    return send_from_directory('.', 'logo.png')
+    return send_from_directory(BASE_DIR, 'logo.png', mimetype='image/png')
 
-@app.route('/<path:path>')
-def catch_all_static(path):
-    if os.path.exists(path):
-        return send_from_directory('.', path)
-    return send_from_directory('.', 'index.html')
+@app.route('/style.css')
+def style_css():
+    return send_from_directory(BASE_DIR, 'style.css', mimetype='text/css')
+
+@app.route('/app.js')
+def app_js():
+    return send_from_directory(BASE_DIR, 'app.js', mimetype='application/javascript')
 
 @app.route('/api/health')
 def health():
@@ -1097,6 +1101,13 @@ def auth_signup():
         "token": f"token_{uuid.uuid4().hex[:16]}"
     }
     return jsonify({"success": True, "message": "Account created successfully!", "user": user}), 201
+
+@app.route('/<path:path>')
+def catch_all_static(path):
+    full_path = os.path.join(BASE_DIR, path)
+    if os.path.isfile(full_path):
+        return send_from_directory(BASE_DIR, path)
+    return send_from_directory(BASE_DIR, 'index.html')
 
 if __name__ == '__main__':
     port = int(os.getenv("PORT", 5000))
