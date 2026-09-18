@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>नगर Drishti - Secure Authentication & Access Portal</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>👁️</text></svg>">
+</head>
+<body class="auth-page-wrapper">
+
+  <div class="auth-card">
+    
+    <!-- Logo & Brand Header -->
+    <div class="auth-logo-center">
+      <div class="brand-logo-icon" style="width: 58px; height: 58px;">
+        <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Stylized Eye Outline -->
+          <path d="M10 50 Q 50 15 90 50 Q 50 85 10 50 Z" stroke="#10b981" stroke-width="5" fill="none"/>
+          <!-- Pupil City Silhouette -->
+          <circle cx="50" cy="50" r="22" fill="#042a22" stroke="#f59e0b" stroke-width="3"/>
+          <path d="M40 60 V45 H46 V38 H54 V48 H60 V60 Z" fill="#10b981"/>
+          <circle cx="50" cy="34" r="3" fill="#f59e0b"/>
+          <!-- Circuit Accent -->
+          <circle cx="85" cy="30" r="3" fill="#06b6d4"/>
+          <path d="M85 30 L75 40" stroke="#06b6d4" stroke-width="2"/>
+        </svg>
+      </div>
+      <div class="brand-title">
+        <span class="hindi-title">नगर</span>
+        <span class="english-title">Drishti</span>
+      </div>
+      <div class="brand-tagline">
+        <span>SEE</span> • <span>REPORT</span> • <span>SOLVE</span>
+      </div>
+      <p style="font-size: 0.8rem; color: #94a3b8; margin-top: 0.25rem;">
+        Civic Incident Intelligence & Operations Platform
+      </p>
+    </div>
+
+    <!-- Login / Signup Toggle Tabs -->
+    <div class="auth-tabs">
+      <button class="auth-tab-btn active" id="tabLoginBtn" onclick="switchAuthTab('login')">Sign In</button>
+      <button class="auth-tab-btn" id="tabSignupBtn" onclick="switchAuthTab('signup')">Create Account</button>
+    </div>
+
+    <!-- Sign In Form -->
+    <form id="loginForm" onsubmit="handleLoginSubmit(event)">
+      <div class="form-group">
+        <label class="form-label">Select Role</label>
+        <div class="role-selector-group">
+          <label class="role-pill selected" id="roleOfficerPill" onclick="selectRole('officer')">
+            <input type="radio" name="authRole" value="officer" checked>
+            <span>🏢 Municipal Officer</span>
+          </label>
+          <label class="role-pill" id="roleCitizenPill" onclick="selectRole('citizen')">
+            <input type="radio" name="authRole" value="citizen">
+            <span>👤 Citizen</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="loginEmail">Email Address</label>
+        <input type="email" id="loginEmail" class="form-input" placeholder="officer@nagardrishti.gov.in" required value="officer.sharma@nagardrishti.gov.in">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="loginPassword">Password</label>
+        <input type="password" id="loginPassword" class="form-input" placeholder="••••••••" required value="demo12345">
+      </div>
+
+      <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 0.5rem;">
+        🚀 Access Command Portal
+      </button>
+
+      <div style="display: flex; gap: 0.5rem; margin-top: 0.75rem;">
+        <button type="button" class="btn btn-secondary btn-sm" style="flex: 1;" onclick="quickDemoLogin('officer')">
+          ⚡ Demo Officer
+        </button>
+        <button type="button" class="btn btn-secondary btn-sm" style="flex: 1;" onclick="quickDemoLogin('citizen')">
+          ⚡ Demo Citizen
+        </button>
+      </div>
+    </form>
+
+    <!-- Sign Up Form (Hidden by default) -->
+    <form id="signupForm" style="display: none;" onsubmit="handleSignupSubmit(event)">
+      <div class="form-group">
+        <label class="form-label" for="signupName">Full Name</label>
+        <input type="text" id="signupName" class="form-input" placeholder="Aarav Sharma" required>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="signupEmail">Email Address</label>
+        <input type="email" id="signupEmail" class="form-input" placeholder="aarav@gmail.com" required>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Ward / Locality</label>
+          <select id="signupWard" class="custom-select" style="width: 100%;">
+            <option value="Sector 4">Sector 4</option>
+            <option value="Civil Lines">Civil Lines</option>
+            <option value="South Extension">South Extension</option>
+            <option value="Hauz Khas">Hauz Khas</option>
+            <option value="Karol Bagh">Karol Bagh</option>
+            <option value="Tilak Marg">Tilak Marg</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Account Role</label>
+          <select id="signupRole" class="custom-select" style="width: 100%;">
+            <option value="citizen">Citizen</option>
+            <option value="officer">Municipal Officer</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="signupPassword">Create Password</label>
+        <input type="password" id="signupPassword" class="form-input" placeholder="••••••••" required>
+      </div>
+
+      <button type="submit" class="btn btn-amber" style="width: 100%; margin-top: 0.5rem;">
+        ✨ Register Account
+      </button>
+    </form>
+
+    <!-- Footer Security Notice -->
+    <div style="font-size: 0.72rem; color: #64748b; text-align: center; border-top: 1px solid rgba(16, 185, 129, 0.15); padding-top: 0.75rem;">
+      🛡️ Secured with Supabase PostgreSQL & Real-time AI Anomaly Engine
+    </div>
+
+  </div>
+
+  <!-- Toast Notifications -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script>
+    let selectedRole = 'officer';
+
+    function switchAuthTab(tab) {
+      const loginTab = document.getElementById('tabLoginBtn');
+      const signupTab = document.getElementById('tabSignupBtn');
+      const loginForm = document.getElementById('loginForm');
+      const signupForm = document.getElementById('signupForm');
+
+      if (tab === 'login') {
+        loginTab.classList.add('active');
+        signupTab.classList.remove('active');
+        loginForm.style.display = 'block';
+        signupForm.style.display = 'none';
+      } else {
+        signupTab.classList.add('active');
+        loginTab.classList.remove('active');
+        signupForm.style.display = 'block';
+        loginForm.style.display = 'none';
+      }
+    }
+
+    function selectRole(role) {
+      selectedRole = role;
+      document.getElementById('roleOfficerPill').classList.toggle('selected', role === 'officer');
+      document.getElementById('roleCitizenPill').classList.toggle('selected', role === 'citizen');
+      
+      const emailInput = document.getElementById('loginEmail');
+      if (role === 'officer') {
+        emailInput.value = 'officer.sharma@nagardrishti.gov.in';
+      } else {
+        emailInput.value = 'citizen.aarav@gmail.com';
+      }
+    }
+
+    async function handleLoginSubmit(e) {
+      e.preventDefault();
+      const email = document.getElementById('loginEmail').value.trim();
+      const password = document.getElementById('loginPassword').value.trim();
+
+      try {
+        const res = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password, role: selectedRole })
+        }).then(r => r.json());
+
+        if (res.success) {
+          localStorage.setItem('nagar_user', JSON.stringify(res.user));
+          showToast(res.message, 'success');
+          setTimeout(() => {
+            window.location.href = '/';
+          }, 600);
+        } else {
+          showToast(res.error || 'Login failed', 'error');
+        }
+      } catch (err) {
+        showToast('Login request error', 'error');
+      }
+    }
+
+    async function handleSignupSubmit(e) {
+      e.preventDefault();
+      const full_name = document.getElementById('signupName').value.trim();
+      const email = document.getElementById('signupEmail').value.trim();
+      const ward = document.getElementById('signupWard').value;
+      const role = document.getElementById('signupRole').value;
+
+      try {
+        const res = await fetch('/api/auth/signup', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ full_name, email, ward, role })
+        }).then(r => r.json());
+
+        if (res.success) {
+          localStorage.setItem('nagar_user', JSON.stringify(res.user));
+          showToast('🎉 Account registered! Redirecting...', 'success');
+          setTimeout(() => {
+            window.location.href = '/';
+          }, 800);
+        } else {
+          showToast(res.error || 'Signup failed', 'error');
+        }
+      } catch (err) {
+        showToast('Signup request error', 'error');
+      }
+    }
+
+    function quickDemoLogin(role) {
+      selectRole(role);
+      const user = role === 'officer' ? {
+        full_name: 'Superintendent V. Sharma',
+        role: 'officer',
+        department: 'Municipal Operations Command'
+      } : {
+        full_name: 'Aarav Sharma',
+        role: 'citizen',
+        department: 'Ward 12 Resident'
+      };
+      localStorage.setItem('nagar_user', JSON.stringify(user));
+      showToast(`Logged in as ${user.full_name}`, 'success');
+      setTimeout(() => {
+        window.location.href = '/';
+      }, 500);
+    }
+
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      toast.className = 'toast';
+      toast.innerHTML = `<span>${type === 'success' ? '✅' : type === 'error' ? '❌' : 'ℹ️'}</span> <span>${message}</span>`;
+      container.appendChild(toast);
+      setTimeout(() => toast.remove(), 3500);
+    }
+  </script>
+</body>
+</html>

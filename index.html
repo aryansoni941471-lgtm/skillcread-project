@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>नगर Drishti - Civic Incident Intelligence Platform</title>
+  
+  <!-- Modern Fonts & Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Tiro+Devanagari+Hindi:ital@0;1&display=swap" rel="stylesheet">
+  
+  <!-- Leaflet Map CSS & JS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- Custom Stylesheet -->
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>👁️</text></svg>">
+</head>
+<body>
+
+  <!-- ====================================================================
+       Navigation & Header HUD
+       ==================================================================== -->
+  <header class="app-header">
+    <a href="#" class="brand-wrapper" onclick="switchTab('officer-dashboard')">
+      <div class="brand-logo-icon">
+        <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M10 50 Q 50 15 90 50 Q 50 85 10 50 Z" stroke="#10b981" stroke-width="5" fill="none"/>
+          <circle cx="50" cy="50" r="22" fill="#042a22" stroke="#f59e0b" stroke-width="3"/>
+          <path d="M40 60 V45 H46 V38 H54 V48 H60 V60 Z" fill="#10b981"/>
+          <circle cx="50" cy="34" r="3" fill="#f59e0b"/>
+          <circle cx="85" cy="30" r="3" fill="#06b6d4"/>
+          <path d="M85 30 L75 40" stroke="#06b6d4" stroke-width="2"/>
+        </svg>
+      </div>
+      <div class="brand-text-block">
+        <div class="brand-title">
+          <span class="hindi-title">नगर</span>
+          <span class="english-title">Drishti</span>
+        </div>
+        <div class="brand-tagline">
+          <span>SEE</span> • <span>REPORT</span> • <span>SOLVE</span>
+        </div>
+      </div>
+    </a>
+
+    <!-- Navigation Tabs -->
+    <nav class="nav-tabs">
+      <button class="nav-tab-btn active" id="tabBtnOfficerDashboard" onclick="switchTab('officer-dashboard')">
+        🏢 Operations Command Center
+      </button>
+      <button class="nav-tab-btn" id="tabBtnCitizenPortal" onclick="switchTab('citizen-portal')">
+        📋 Citizen Portal
+      </button>
+      <button class="nav-tab-btn" id="tabBtnBriefingStudio" onclick="switchTab('briefing-studio')">
+        📊 AI Daily Briefing
+      </button>
+    </nav>
+
+    <!-- Header Right Controls -->
+    <div class="header-actions">
+      <div class="live-pill">
+        <span class="pulse-dot"></span>
+        <span>LIVE INTELLIGENCE</span>
+      </div>
+
+      <div class="user-profile-badge" onclick="toggleRole()" title="Click to toggle Citizen/Officer role">
+        <div class="user-avatar" id="userAvatarText">VS</div>
+        <div style="display: flex; flex-direction: column;">
+          <span style="font-size: 0.8rem; font-weight: 700;" id="userProfileName">Officer V. Sharma</span>
+          <span class="user-role-tag" id="userRoleBadge">OFFICER</span>
+        </div>
+      </div>
+
+      <a href="/auth" class="btn btn-secondary btn-sm" title="Go to Login / Account page">
+        🔐 Auth
+      </a>
+    </div>
+  </header>
+
+  <!-- ====================================================================
+       Main Container
+       ==================================================================== -->
+  <main class="main-container">
+
+    <!-- ================================================================
+         VIEW 1: MUNICIPAL OPERATIONS COMMAND CENTER (Officer Mode)
+         ================================================================ -->
+    <div id="view-officer-dashboard" class="view-section">
+      
+      <!-- Critical Spike Alert Banner -->
+      <div class="spike-alert-banner" id="spikeAlertBanner">
+        <div class="banner-left">
+          <div class="banner-icon">🚨</div>
+          <div>
+            <div class="banner-title">
+              <span id="bannerSpikeLocality">Critical Spike Detected in Sector 4</span>
+              <span class="banner-zscore-badge" id="bannerZScore">Z-SCORE: +3.4</span>
+            </div>
+            <div class="banner-desc" id="bannerSpikeDesc">
+              Surge in Water Contamination complaints exceeds historical 7-day Poisson baseline by 340%.
+            </div>
+          </div>
+        </div>
+        <div class="banner-actions">
+          <button class="btn btn-danger btn-sm" onclick="filterByEvidence('Sector 4')">
+            ⚡ Inspect Evidence
+          </button>
+        </div>
+      </div>
+
+      <!-- Live Simulation Action Bar (Hackathon Demonstration Trigger) -->
+      <div class="simulation-bar" style="margin-top: 1rem;">
+        <div class="sim-label-group">
+          <span class="sim-badge">🎯 Live Incident Simulator</span>
+          <span style="font-size: 0.82rem; color: #94a3b8;">Trigger real-time scripted crisis spikes to test ML Anomaly Detector:</span>
+        </div>
+        <div class="sim-buttons">
+          <button class="btn btn-amber btn-sm" onclick="triggerSpikeSimulation('water_surge')">
+            💧 Water Pipeline Crisis
+          </button>
+          <button class="btn btn-danger btn-sm" onclick="triggerSpikeSimulation('power_crisis')">
+            ⚡ Transformer Blast
+          </button>
+          <button class="btn btn-secondary btn-sm" onclick="triggerSpikeSimulation('road_sinkhole')">
+            🚧 Road Crater Sinkhole
+          </button>
+        </div>
+      </div>
+
+      <!-- KPI Overview Grid -->
+      <div class="kpi-grid" style="margin-top: 1.25rem;">
+        <div class="kpi-card">
+          <div class="kpi-header">
+            <span class="kpi-title">Total Active Complaints</span>
+            <div class="kpi-icon-box">📋</div>
+          </div>
+          <div class="kpi-value-row">
+            <span class="kpi-value" id="kpiTotalComplaints">24</span>
+            <span class="kpi-delta delta-up">Live</span>
+          </div>
+          <div class="kpi-subtext">Across 7 metropolitan municipal wards</div>
+        </div>
+
+        <div class="kpi-card kpi-red">
+          <div class="kpi-header">
+            <span class="kpi-title">Statistical Spikes Detected</span>
+            <div class="kpi-icon-box">📈</div>
+          </div>
+          <div class="kpi-value-row">
+            <span class="kpi-value" id="kpiActiveSpikes">3</span>
+            <span class="kpi-delta delta-up">Z ≥ 2.0</span>
+          </div>
+          <div class="kpi-subtext">Statistically anomalous volume surges</div>
+        </div>
+
+        <div class="kpi-card kpi-amber">
+          <div class="kpi-header">
+            <span class="kpi-title">Deduplicated Clusters</span>
+            <div class="kpi-icon-box">🔗</div>
+          </div>
+          <div class="kpi-value-row">
+            <span class="kpi-value" id="kpiDuplicateClusters">4</span>
+            <span class="kpi-delta delta-down">Cosine ≥ 0.55</span>
+          </div>
+          <div class="kpi-subtext">Recurring descriptions auto-grouped</div>
+        </div>
+
+        <div class="kpi-card kpi-purple">
+          <div class="kpi-header">
+            <span class="kpi-title">Average SLA Target</span>
+            <div class="kpi-icon-box">⏱️</div>
+          </div>
+          <div class="kpi-value-row">
+            <span class="kpi-value" id="kpiAvgSla">16.4 hrs</span>
+            <span class="kpi-delta delta-down">Optimal</span>
+          </div>
+          <div class="kpi-subtext">Predicted resolution turnaround</div>
+        </div>
+      </div>
+
+      <!-- Geospatial Map & Real-time Analytics Split Grid -->
+      <div class="dashboard-grid-2col" style="margin-top: 1.25rem;">
+        
+        <!-- Interactive Leaflet Map Panel -->
+        <div class="glass-panel">
+          <div class="panel-header">
+            <div class="panel-title-group">
+              <span class="panel-title">🗺️ Geospatial Incident Intelligence Map</span>
+              <span class="panel-badge">Real-time GPS Heatmap</span>
+            </div>
+            <div class="panel-tools">
+              <button class="btn btn-secondary btn-sm" onclick="fetchDashboardData()">🔄 Refresh</button>
+            </div>
+          </div>
+          
+          <div id="civicMap"></div>
+
+          <div class="map-legend">
+            <div class="legend-item">
+              <span class="legend-dot dot-critical"></span>
+              <span>Severity 5 (Fatal / Emergency)</span>
+            </div>
+            <div class="legend-item">
+              <span class="legend-dot dot-high"></span>
+              <span>Severity 4 (Major Disruption)</span>
+            </div>
+            <div class="legend-item">
+              <span class="legend-dot dot-medium"></span>
+              <span>Severity 3 (Moderate)</span>
+            </div>
+            <div class="legend-item">
+              <span class="legend-dot dot-low"></span>
+              <span>Severity 1-2 (Minor)</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Charts & Analytics Panel -->
+        <div class="glass-panel">
+          <div class="panel-header">
+            <div class="panel-title-group">
+              <span class="panel-title">📊 Statistical Trends & Volume Analytics</span>
+              <span class="panel-badge">Rolling 7-Day Baseline</span>
+            </div>
+          </div>
+
+          <div class="charts-grid">
+            <div>
+              <div style="font-size: 0.8rem; font-weight: 700; color: #475569; margin-bottom: 0.4rem;">
+                Hourly Incident Volume vs Historical Mean
+              </div>
+              <div class="chart-wrapper">
+                <canvas id="chartTrends"></canvas>
+              </div>
+            </div>
+
+            <div>
+              <div style="font-size: 0.8rem; font-weight: 700; color: #475569; margin-bottom: 0.4rem;">
+                Department & Category Breakdown
+              </div>
+              <div class="chart-wrapper">
+                <canvas id="chartCategories"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <!-- Deduplicated Incident Clusters Section -->
+          <div style="margin-top: 0.5rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+              <span style="font-size: 0.88rem; font-weight: 800; color: #0f172a;">
+                🔗 High-Impact Clustered Incidents (TF-IDF Similarity)
+              </span>
+              <span style="font-size: 0.72rem; color: #059669; font-weight: 700;">Auto-Deduplicated</span>
+            </div>
+            <div class="cluster-list" id="clustersList">
+              <!-- Rendered dynamically -->
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- Civic Complaints Master Data Table -->
+      <div class="glass-panel" id="complaintsTablePanel" style="margin-top: 1.25rem;">
+        <div class="panel-header">
+          <div class="panel-title-group">
+            <span class="panel-title">📑 Master Civic Complaints Incident Register</span>
+            <span class="panel-badge" id="tableCountBadge">Loading...</span>
+          </div>
+          <div class="panel-tools">
+            <button class="btn btn-secondary btn-sm" onclick="exportToCsv()">📥 Export CSV</button>
+          </div>
+        </div>
+
+        <!-- Table Filters Bar -->
+        <div class="table-filter-bar">
+          <div class="search-input-box">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="tableSearchInput" placeholder="Search by description, ID, citizen, locality...">
+          </div>
+
+          <div class="filter-selects-group">
+            <select class="custom-select" id="filterCategory">
+              <option value="All">All Categories</option>
+              <option value="Water Supply">Water Supply</option>
+              <option value="Electricity">Electricity</option>
+              <option value="Road & Potholes">Road & Potholes</option>
+              <option value="Waste Management">Waste Management</option>
+              <option value="Sewage & Drainage">Sewage & Drainage</option>
+              <option value="Street Lighting">Street Lighting</option>
+              <option value="Public Safety">Public Safety</option>
+            </select>
+
+            <select class="custom-select" id="filterStatus">
+              <option value="All">All Statuses</option>
+              <option value="Pending">Pending</option>
+              <option value="In Progress">In Progress</option>
+              <option value="Escalated">Escalated</option>
+              <option value="Resolved">Resolved</option>
+            </select>
+
+            <select class="custom-select" id="filterLocality">
+              <option value="All">All Wards / Localities</option>
+              <option value="Sector 4">Sector 4</option>
+              <option value="Civil Lines">Civil Lines</option>
+              <option value="South Extension">South Extension</option>
+              <option value="Hauz Khas">Hauz Khas</option>
+              <option value="Karol Bagh">Karol Bagh</option>
+              <option value="Tilak Marg">Tilak Marg</option>
+              <option value="Lajpat Nagar">Lajpat Nagar</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Table View -->
+        <div class="data-table-container">
+          <table class="civic-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Title & Description</th>
+                <th>Category</th>
+                <th>Locality</th>
+                <th>Severity</th>
+                <th>Status Action</th>
+                <th>Timestamp</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="complaintsTableBody">
+              <!-- Loaded dynamically -->
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- ================================================================
+         VIEW 2: CITIZEN REPORTING PORTAL
+         ================================================================ -->
+    <div id="view-citizen-portal" class="view-section" style="display: none;">
+      
+      <div class="citizen-portal-grid">
+        
+        <!-- Left: Complaint Submission Form -->
+        <div class="glass-panel">
+          <div class="panel-header">
+            <div class="panel-title-group">
+              <span class="panel-title">✍️ Report a Civic Incident</span>
+              <span class="panel-badge">AI Auto-Triage</span>
+            </div>
+          </div>
+
+          <form id="complaintForm" onsubmit="submitCitizenComplaint(event)">
+            
+            <div class="form-group">
+              <label class="form-label" for="citizenName">Your Name</label>
+              <input type="text" id="citizenName" class="form-input" placeholder="e.g. Aarav Sharma" value="Aarav Sharma">
+            </div>
+
+            <div class="form-group">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.25rem;">
+                <label class="form-label" for="citizenLocality">Ward / Locality & GPS</label>
+                <button type="button" class="btn btn-secondary btn-sm" id="btnDetectGps" onclick="detectLiveLocation()" style="padding: 0.2rem 0.55rem; font-size: 0.72rem; color: #047857; border-color: #a7f3d0; background: #ecfdf5;">
+                  📍 Detect My Live GPS
+                </button>
+              </div>
+              <select id="citizenLocality" class="custom-select" style="width: 100%; margin-bottom: 0.4rem;" onchange="onComplaintInput()">
+                <option value="Sector 4">Sector 4 (Central) [28.6328, 77.2195]</option>
+                <option value="Civil Lines">Civil Lines (North) [28.6750, 77.2280]</option>
+                <option value="South Extension">South Extension (South) [28.5720, 77.2215]</option>
+                <option value="Hauz Khas">Hauz Khas (South-West) [28.5450, 77.2090]</option>
+                <option value="Karol Bagh">Karol Bagh (West) [28.6520, 77.1850]</option>
+                <option value="Tilak Marg">Tilak Marg (East) [28.6180, 77.2340]</option>
+                <option value="Lajpat Nagar">Lajpat Nagar (South-East) [28.5800, 77.2020]</option>
+              </select>
+
+              <!-- Live GPS Status Badge -->
+              <div id="gpsStatusBadge" style="display: none; font-size: 0.75rem; background: #ecfdf5; border: 1px solid #a7f3d0; color: #065f46; padding: 0.35rem 0.65rem; border-radius: var(--radius-sm); margin-bottom: 0.4rem; align-items: center; justify-content: space-between;">
+                <span id="gpsCoordText">✅ Live GPS: Lat: 28.6328, Lon: 77.2195</span>
+                <span style="cursor: pointer; color: #dc2626; font-weight: 700;" onclick="clearLiveGps()" title="Reset to Ward Preset">✖</span>
+              </div>
+              <input type="hidden" id="customLat" value="">
+              <input type="hidden" id="customLon" value="">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="citizenTitle">Incident Headline</label>
+              <input type="text" id="citizenTitle" class="form-input" placeholder="e.g. Broken water pipe leaking muddy water" required oninput="onComplaintInput()">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="citizenDesc">Detailed Description</label>
+              <textarea id="citizenDesc" class="form-textarea" rows="4" placeholder="Describe the issue with specific landmarks, severity, odor, danger, or symptoms..." required oninput="onComplaintInput()"></textarea>
+            </div>
+
+            <!-- Duplicate Warning Alert (Triggered automatically) -->
+            <div id="duplicateWarningAlert" class="duplicate-warning-box" style="display: none; margin-bottom: 1rem;"></div>
+
+            <!-- Live AI Auto-Categorization Card -->
+            <div class="ai-prediction-box" style="margin-bottom: 1rem;">
+              <div class="ai-pred-header">
+                <span>🤖 AI Real-Time Classification Preview</span>
+                <span id="predConfidence">92% Confidence</span>
+              </div>
+              <div class="ai-pred-grid">
+                <div class="ai-pred-item">
+                  <span class="ai-pred-label">Predicted Category:</span>
+                  <span class="ai-pred-val" id="predCategory" style="color: #34d399;">Water Supply</span>
+                </div>
+                <div class="ai-pred-item">
+                  <span class="ai-pred-label">Assigned Department:</span>
+                  <span class="ai-pred-val" id="predDepartment" style="color: #38bdf8;">Water & Sewage Board</span>
+                </div>
+                <div class="ai-pred-item">
+                  <span class="ai-pred-label">Urgency Severity:</span>
+                  <span class="ai-pred-val" id="predSeverity" style="color: #fbbf24;">4 / 5</span>
+                </div>
+                <div class="ai-pred-item">
+                  <span class="ai-pred-label">Target SLA:</span>
+                  <span class="ai-pred-val" id="predSla" style="color: #f87171;">12 hrs</span>
+                </div>
+              </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="width: 100%; font-size: 0.95rem;">
+              🚀 Submit Complaint to Municipal Operations
+            </button>
+          </form>
+
+        </div>
+
+        <!-- Right: Citizen Community Feed & Upvoting -->
+        <div class="glass-panel">
+          <div class="panel-header">
+            <div class="panel-title-group">
+              <span class="panel-title">📢 Community Activity Feed</span>
+              <span class="panel-badge">Upvote Issues in Your Area</span>
+            </div>
+          </div>
+          <div id="citizenFeedContainer" style="max-height: 580px; overflow-y: auto; padding-right: 0.25rem;">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- ================================================================
+         VIEW 3: AI OPERATIONS BRIEFING STUDIO
+         ================================================================ -->
+    <div id="view-briefing-studio" class="view-section" style="display: none;">
+      
+      <div class="briefing-card">
+        
+        <div class="briefing-meta-bar">
+          <div>
+            <h2 style="font-size: 1.35rem; font-weight: 800; color: #0f172a;">
+              📋 Municipal Operations Daily Intelligence Briefing
+            </h2>
+            <div class="briefing-stamp" id="briefingTimestamp">
+              Generated: Computing live statistics...
+            </div>
+          </div>
+          <div style="display: flex; align-items: center; gap: 0.6rem;">
+            <span class="guardrail-tag">🛡️ Verified Evidence Grounded (No Hallucination)</span>
+            <button class="btn btn-secondary btn-sm" onclick="loadOperationsBriefing()">
+              🔄 Recompute Briefing
+            </button>
+          </div>
+        </div>
+
+        <!-- Briefing Content Container -->
+        <div id="briefingContentContainer">
+          <!-- Loaded dynamically with evidence citations -->
+        </div>
+
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- Toast Notification Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Custom Scripts -->
+  <script src="app.js"></script>
+  <script>
+    function exportToCsv() {
+      if (!State.complaints || State.complaints.length === 0) {
+        showToast('No complaints to export', 'warning');
+        return;
+      }
+      const headers = ['ID', 'Category', 'Title', 'Locality', 'Severity', 'Department', 'Status', 'SLA_Hours', 'Timestamp'];
+      const rows = State.complaints.map(c => [
+        c.id,
+        `"${c.category}"`,
+        `"${c.title.replace(/"/g, '""')}"`,
+        `"${c.locality}"`,
+        c.severity,
+        `"${c.department}"`,
+        c.status,
+        c.sla_hours,
+        `"${c.timestamp}"`
+      ]);
+      const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map(e => e.join(','))].join('\n');
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement('a');
+      link.setAttribute('href', encodedUri);
+      link.setAttribute('download', `Nagar_Drishti_Incidents_${new Date().toISOString().slice(0,10)}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      showToast('Exported CSV successfully', 'success');
+    }
+  </script>
+</body>
+</html>
