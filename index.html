@@ -189,13 +189,30 @@
         
         <!-- Interactive Leaflet Map Panel -->
         <div class="glass-panel">
-          <div class="panel-header">
+          <div class="panel-header" style="flex-wrap: wrap; gap: 0.5rem;">
             <div class="panel-title-group">
-              <span class="panel-title">🗺️ Geospatial Incident Intelligence Map</span>
-              <span class="panel-badge">Real-time GPS Heatmap</span>
+              <span class="panel-title">🛰️ Real Satellite Intelligence Map</span>
+              <span class="panel-badge" id="mapModeBadge" style="background: #064e3b; color: #34d399; border-color: #059669;">🛰️ Google Satellite HD</span>
             </div>
-            <div class="panel-tools">
-              <button class="btn btn-secondary btn-sm" onclick="fetchDashboardData()">🔄 Refresh</button>
+            <div class="panel-tools" style="display: flex; gap: 0.35rem; align-items: center; flex-wrap: wrap;">
+              <div class="map-layer-selector">
+                <button type="button" class="btn-map-mode active" id="btnModeGoogleSat" onclick="switchMapLayer('google_hybrid')" title="Photorealistic Google Satellite + Roads & Landmarks">
+                  🛰️ Satellite HD
+                </button>
+                <button type="button" class="btn-map-mode" id="btnModeEsriSat" onclick="switchMapLayer('esri_sat')" title="Esri ArcGIS World High-Res Imagery">
+                  🌍 Esri Imagery
+                </button>
+                <button type="button" class="btn-map-mode" id="btnModeStreet" onclick="switchMapLayer('osm')" title="OpenStreetMap Street View">
+                  🗺️ Streets
+                </button>
+                <button type="button" class="btn-map-mode" id="btnModeDark" onclick="switchMapLayer('dark')" title="Night Tactical Mode">
+                  🌙 Tactical Dark
+                </button>
+              </div>
+              <button class="btn btn-secondary btn-sm" onclick="fitMapToIncidents()" title="Zoom to fit all active incident pins" style="padding: 0.25rem 0.6rem; font-size: 0.74rem;">
+                🎯 Fit Pins
+              </button>
+              <button class="btn btn-secondary btn-sm" onclick="fetchDashboardData()" style="padding: 0.25rem 0.6rem; font-size: 0.74rem;">🔄 Refresh</button>
             </div>
           </div>
           

@@ -88,28 +88,127 @@ function toggleRole() {
 }
 
 // ====================================================================
-// Map Initialization (Leaflet with Light Emerald & Voyager Styling)
+// Map Initialization (Photorealistic Satellite HD & Tactical Multi-Layers)
 // ====================================================================
+const TileProviders = {
+  google_hybrid: {
+    name: '🛰️ Google Satellite HD',
+    badge: '🛰️ Google Satellite HD',
+    url: 'https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}',
+    options: {
+      maxZoom: 21,
+      subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
+      attribution: 'Google Satellite Imagery'
+    }
+  },
+  esri_sat: {
+    name: '🌍 Esri Satellite HD',
+    badge: '🌍 Esri World Imagery',
+    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+    options: {
+      maxZoom: 19,
+      attribution: 'Esri World Imagery'
+    }
+  },
+  osm: {
+    name: '🗺️ Streets (OSM)',
+    badge: '🗺️ OpenStreetMap',
+    url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+    options: {
+      maxZoom: 19,
+      subdomains: 'abc',
+      attribution: 'OpenStreetMap'
+    }
+  },
+  dark: {
+    name: '🌙 Tactical Dark',
+    badge: '🌙 Night Tactical Mode',
+    url: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
+    options: {
+      maxZoom: 19,
+      subdomains: 'abcd',
+      attribution: 'CartoDB DarkMatter'
+    }
+  }
+};
+
+let currentTileLayer = null;
+
 function initMap() {
   const mapElem = document.getElementById('civicMap');
   if (!mapElem) return;
 
-  // Center on Capital Metropolitan Area
+  // Center on Metropolitan Incident Region
   State.mapInstance = L.map('civicMap', {
     zoomControl: true,
     attributionControl: false
   }).setView([28.6250, 77.2150], 12);
 
-  // Modern Clean Light CartoDB Voyager Tiles matching emerald/teal aesthetics
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-    maxZoom: 19,
-    subdomains: 'abcd'
-  }).addTo(State.mapInstance);
+  // Set Default Layer to Google Satellite HD (Realistic Satellite with Roads & Landmarks)
+  switchMapLayer('google_hybrid');
 
   // Invalidate map size on window resize
   window.addEventListener('resize', () => {
     if (State.mapInstance) State.mapInstance.invalidateSize();
   });
+}
+
+function switchMapLayer(layerKey) {
+  if (!State.mapInstance) return;
+  const config = TileProviders[layerKey] || TileProviders.google_hybrid;
+
+  if (currentTileLayer) {
+    State.mapInstance.removeLayer(currentTileLayer);
+  }
+
+  currentTileLayer = L.tileLayer(config.url, config.options).addTo(State.mapInstance);
+
+  // Update Button Active Classes
+  const buttons = {
+    'google_hybrid': 'btnModeGoogleSat',
+    'esri_sat': 'btnModeEsriSat',
+    'osm': 'btnModeStreet',
+    'dark': 'btnModeDark'
+  };
+
+  Object.entries(buttons).forEach(([key, btnId]) => {
+    const el = document.getElementById(btnId);
+    if (el) {
+      if (key === layerKey) el.classList.add('active');
+      else el.classList.remove('active');
+    }
+  });
+
+  const badge = document.getElementById('mapModeBadge');
+  if (badge) {
+    badge.textContent = config.badge;
+    if (layerKey === 'google_hybrid' || layerKey === 'esri_sat') {
+      badge.style.background = '#064e3b';
+      badge.style.color = '#34d399';
+      badge.style.borderColor = '#059669';
+    } else if (layerKey === 'dark') {
+      badge.style.background = '#0f172a';
+      badge.style.color = '#38bdf8';
+      badge.style.borderColor = '#334155';
+    } else {
+      badge.style.background = '#ecfdf5';
+      badge.style.color = '#047857';
+      badge.style.borderColor = '#a7f3d0';
+    }
+  }
+}
+
+function fitMapToIncidents() {
+  if (!State.mapInstance || !State.complaints || State.complaints.length === 0) return;
+
+  const validCoords = State.complaints
+    .filter(c => c.latitude && c.longitude && !isNaN(c.latitude) && !isNaN(c.longitude))
+    .map(c => [c.latitude, c.longitude]);
+
+  if (validCoords.length > 0) {
+    const bounds = L.latLngBounds(validCoords);
+    State.mapInstance.fitBounds(bounds, { padding: [40, 40], maxZoom: 15 });
+  }
 }
 
 function updateMapMarkers(complaints, spikes) {
@@ -122,56 +221,71 @@ function updateMapMarkers(complaints, spikes) {
   // Severity color mapper
   const getSevColor = (sev) => {
     switch (sev) {
-      case 5: return '#dc2626';
-      case 4: return '#d97706';
-      case 3: return '#0284c7';
-      default: return '#059669';
+      case 5: return '#ef4444';
+      case 4: return '#f59e0b';
+      case 3: return '#06b6d4';
+      default: return '#10b981';
     }
   };
 
-  // Add Spike Circles (Pulsing Area Hotspots)
+  // 1. Add Spike Circles (Pulsing Radar Waves for Anomaly Clusters)
   spikes.forEach(spike => {
+    // Outer radar wave
     const pulseCircle = L.circleMarker([spike.latitude, spike.longitude], {
-      radius: 28,
-      color: '#dc2626',
+      radius: 32,
+      color: '#ef4444',
       fillColor: '#fee2e2',
-      fillOpacity: 0.45,
+      fillOpacity: 0.35,
       weight: 2.5,
-      dashArray: '5, 5'
+      dashArray: '4, 6'
     }).addTo(State.mapInstance);
 
-    pulseCircle.bindPopup(`
-      <div class="custom-popup-title">🚨 CRITICAL SPIKE: ${spike.locality}</div>
+    // Inner epicenter
+    const centerEpicenter = L.circleMarker([spike.latitude, spike.longitude], {
+      radius: 12,
+      color: '#ffffff',
+      fillColor: '#dc2626',
+      fillOpacity: 0.95,
+      weight: 2
+    }).addTo(State.mapInstance);
+
+    const spikePopup = `
+      <div class="custom-popup-title" style="color: #dc2626;">🚨 CRITICAL SPIKE: ${spike.locality}</div>
       <div class="custom-popup-body">
         <strong>${spike.category}</strong><br>
-        📈 Volume Surge: <strong>+${spike.surge_percentage}%</strong> (Z-Score: +${spike.z_score})<br>
+        📈 Volume Surge: <strong style="color: #dc2626;">+${spike.surge_percentage}%</strong> (Z-Score: +${spike.z_score})<br>
         📋 Incidents Reported: <strong>${spike.current_count}</strong><br>
-        <span style="color:#dc2626; font-size:11px; font-weight:600;">Supporting Evidence: ${spike.evidence_rows.join(', ')}</span>
+        <div style="margin-top: 5px; padding: 4px 6px; background: #fef2f2; border-radius: 4px; border: 1px solid #fecaca;">
+          <span style="color:#b91c1c; font-size:11px; font-weight:700;">Evidence Cases: ${spike.evidence_rows.join(', ')}</span>
+        </div>
       </div>
-    `);
-    State.mapMarkers.push(pulseCircle);
+    `;
+
+    pulseCircle.bindPopup(spikePopup);
+    centerEpicenter.bindPopup(spikePopup);
+    State.mapMarkers.push(pulseCircle, centerEpicenter);
   });
 
-  // Add Individual Incident Markers
+  // 2. Add Individual Incident Markers (High Visibility Glowing Pins)
   complaints.forEach(c => {
     const color = getSevColor(c.severity);
     const marker = L.circleMarker([c.latitude, c.longitude], {
-      radius: c.severity >= 4 ? 8 : 6,
+      radius: c.severity >= 4 ? 8 : 6.5,
       fillColor: color,
       color: '#ffffff',
-      weight: 2,
+      weight: 2.2,
       opacity: 1,
-      fillOpacity: 0.9
+      fillOpacity: 0.95
     }).addTo(State.mapInstance);
 
     marker.bindPopup(`
-      <div class="custom-popup-title">${c.id}: ${c.category}</div>
+      <div class="custom-popup-title">📌 ${c.id}: ${c.category}</div>
       <div class="custom-popup-body">
-        <strong>${c.title}</strong><br>
-        📍 Locality: ${c.locality}<br>
+        <strong style="color: #0f172a; font-size: 0.88rem;">${c.title}</strong><br>
+        📍 <strong>${c.locality}</strong> [${Number(c.latitude).toFixed(4)}, ${Number(c.longitude).toFixed(4)}]<br>
         ⚠️ Severity: <strong>${c.severity}/5</strong> | Status: <span class="status-badge status-${c.status.replace(' ', '-')}">${c.status}</span><br>
-        ⏱️ SLA: ${c.sla_hours} hrs | 👍 Upvotes: ${c.upvotes}<br>
-        <p style="margin-top:4px; font-size:11px; color:#475569;">${c.description}</p>
+        ⏱️ SLA Target: <strong>${c.sla_hours} hrs</strong> | 👍 Upvotes: <strong>${c.upvotes}</strong><br>
+        <p style="margin-top:5px; padding: 4px 6px; background: #f8fafc; border-radius: 4px; font-size:11px; color:#475569; border: 1px solid #e2e8f0;">${c.description}</p>
       </div>
     `);
     State.mapMarkers.push(marker);
@@ -295,6 +409,10 @@ async function fetchDashboardData(isBackground = false) {
     renderCitizenFeed(State.complaints);
     updateMapMarkers(State.complaints, State.spikes);
     updateLocalityFilterDropdown(State.complaints);
+
+    if (!isBackground) {
+      setTimeout(fitMapToIncidents, 300);
+    }
 
     // Update Charts
     if (trendsRes.success && State.charts.trends) {

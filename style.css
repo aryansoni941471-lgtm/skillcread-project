@@ -555,13 +555,49 @@ body {
   border: 1px solid #a7f3d0;
 }
 
-/* Map Styling (Light Mode) */
+/* Map Styling (Photorealistic Satellite Mode) */
+.map-layer-selector {
+  display: inline-flex;
+  background: #f1f5f9;
+  border-radius: var(--radius-sm);
+  padding: 2px;
+  border: 1px solid #cbd5e1;
+  gap: 2px;
+}
+
+.btn-map-mode {
+  border: none;
+  background: transparent;
+  color: #475569;
+  font-size: 0.73rem;
+  font-weight: 600;
+  padding: 0.22rem 0.55rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s ease-in-out;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.btn-map-mode:hover {
+  color: #0f172a;
+  background: rgba(255, 255, 255, 0.6);
+}
+
+.btn-map-mode.active {
+  background: #059669;
+  color: #ffffff;
+  box-shadow: 0 1px 3px rgba(5, 150, 105, 0.3);
+}
+
 #civicMap {
   width: 100%;
-  height: 430px;
+  height: 440px;
   border-radius: var(--radius-md);
-  border: 1px solid #e2e8f0;
+  border: 1.5px solid #cbd5e1;
   z-index: 10;
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.06);
 }
 
 .map-legend {
@@ -590,18 +626,20 @@ body {
   border-radius: 50%;
 }
 
-.dot-critical { background: #dc2626; box-shadow: 0 0 6px rgba(220, 38, 38, 0.4); }
-.dot-high { background: #d97706; }
+.dot-critical { background: #dc2626; box-shadow: 0 0 8px rgba(220, 38, 38, 0.7); }
+.dot-high { background: #d97706; box-shadow: 0 0 6px rgba(217, 119, 6, 0.5); }
 .dot-medium { background: #0284c7; }
 .dot-low { background: #059669; }
 
-/* Custom Leaflet Map Popup (Light) */
+/* Custom Leaflet Map Popup (Crisp Glass Design) */
 .leaflet-popup-content-wrapper {
-  background: #ffffff !important;
+  background: rgba(255, 255, 255, 0.96) !important;
+  backdrop-filter: blur(8px) !important;
   color: #0f172a !important;
   border: 1.5px solid #059669 !important;
   border-radius: var(--radius-md) !important;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1) !important;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25) !important;
+  padding: 2px !important;
 }
 .leaflet-popup-tip {
   background: #ffffff !important;
@@ -614,8 +652,15 @@ body {
 }
 .custom-popup-body {
   font-size: 0.82rem;
-  color: #475569;
+  color: #334155;
   line-height: 1.45;
+}
+
+/* Radar Pulse Wave Animation for Spikes */
+@keyframes radar-pulse {
+  0% { transform: scale(0.9); opacity: 0.8; }
+  50% { transform: scale(1.3); opacity: 0.3; }
+  100% { transform: scale(0.9); opacity: 0.8; }
 }
 
 /* Charts Grid */
